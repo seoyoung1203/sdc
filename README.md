@@ -8,6 +8,7 @@ GIS 기반 취약성 분석 데이터셋 구축, 정책 방향성 수립
 ---
 
 ## 프로젝트 구조
+```
 sdc/
 │
 ├── data/
@@ -31,7 +32,7 @@ sdc/
 ├── .gitignore
 ├── requirements.txt
 └── README.md
-
+```
 ---
 
 ## 사용 데이터
