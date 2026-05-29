@@ -13,11 +13,12 @@ sdc/
 │
 ├── data/
 │   ├── raw/
-│   │   ├── ta_20260528131309.csv
-│   │   └── seoul_heat_shelter.csv
+│   │   ├── 서울 기온.csv
+│   │   └── 무더위 쉼터.csv
 │   │
 │   └── processed/
-│       ├── seoul_heatwave_only.csv
+│       ├── seoul_heatwave_only.csv(폭염)
+        |__ 
 │       └── seoul_heat_shelter_processed.csv
 │
 ├── scripts/
