@@ -83,3 +83,22 @@ tropical_nights.csv
 
 ```bash
 pip install -r requirements.txt
+
+```
+---
+## 최종 정규화 파일 컬럼명
+district: 서울시 25개 자치구 명칭 (공간 조인의 기준키)
+
+year: 데이터의 기준 연도
+
+elderly_pop: 65세 이상 고령인구 수 (명)
+
+total_recipients: 기초생활수급자 전체 인구 수 (명)
+
+elderly_recipients / elderly_recipient_ratio: 고령 수급자 수 및 비율
+
+녹지율: 자치구 전체 면적 대비 녹지 면적 비율 (%)
+
+불투수면적_비율: 아스팔트, 콘크리트 등으로 덮인 면적 비율 (%)
+
+무더위쉼터_수 / 쿨링포그_수 / 그늘막_수: 각 자치구에 설치된 폭염 저감 시설의 개수
