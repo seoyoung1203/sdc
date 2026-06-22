@@ -11,15 +11,23 @@ GIS 기반 취약성 분석 데이터셋 구축, 정책 방향성 수립
 ```
 sdc/
 │
-├── data/
-│   ├── raw/
-│   │   ├── 서울 기온.csv
-│   │   └── 무더위 쉼터.csv
-│   │
-│   └── processed/
-│       ├── seoul_heatwave_only.csv(폭염)
-        |__ 
-│       └── seoul_heat_shelter_processed.csv
+data/
+├── raw/
+│   ├── outcome/   # 결과 변수
+│   ├── climate/   # 기후 변수
+│   ├── social/    # 사회 취약성
+│   ├── env/       # 환경 변수
+│   └── cooling/   # 폭염 저감 시설
+│
+├── processed/
+│   ├── outcome/
+│   ├── climate/
+│   ├── social/
+│   ├── env/
+│   └── cooling/
+│
+└── master/
+    └── heat_risk_master.csv
 │
 ├── scripts/
 │   ├── preprocess_temperature.py
@@ -34,6 +42,24 @@ sdc/
 ├── requirements.txt
 └── README.md
 ```
+---
+processed/climate/
+
+heat_index.csv
+├─ 전체 체감온도 데이터
+
+summer_weather.csv
+├─ 6~8월 데이터
+
+heat_index_30plus.csv
+├─ 체감온도 30도 이상
+
+heatwave_days.csv
+├─ 최고기온 30도 이상
+
+tropical_nights.csv
+├─ 여름철 열대야일수
+
 ---
 
 ## 사용 데이터
