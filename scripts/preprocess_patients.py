@@ -1,104 +1,113 @@
-from pathlib import Path
 import pandas as pd
+from pathlib import Path
 
-# ==================================================
-# 경로 설정
-# ==================================================
+from utils.outcome import (
+    save_csv,
+    clean_district_name,
+    filter_seoul
+)
+
+# ============================================
+# 경로
+# ============================================
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-RAW_DIR = BASE_DIR / "data" / "raw"
-PROCESSED_DIR = BASE_DIR / "data" / "processed"
+RAW_DIR = (
+    BASE_DIR /
+    "data" /
+    "raw" /
+    "outcome"
+)
 
-PROCESSED_DIR.mkdir(exist_ok=True)
+PROCESSED_DIR = (
+    BASE_DIR /
+    "data" /
+    "processed" /
+    "outcome"
+)
 
-# ==================================================
-# 원본 데이터 읽기
-# ==================================================
-input_file = RAW_DIR / "heat_patients_sigungu.csv"
+# ============================================
+# 파일
+# ============================================
 
-df = pd.read_csv(input_file, encoding="cp949")
+file_path = (
+    RAW_DIR /
+    "heat_patients_sigungu.csv"
+)
 
-# ==================================================
-# 서울 25개 자치구
-# ==================================================
-SEOUL_DISTRICTS = [
-    "종로구", "중구", "용산구", "성동구", "광진구",
-    "동대문구", "중랑구", "성북구", "강북구", "도봉구",
-    "노원구", "은평구", "서대문구", "마포구", "양천구",
-    "강서구", "구로구", "금천구", "영등포구", "동작구",
-    "관악구", "서초구", "강남구", "송파구", "강동구"
-]
+# ============================================
+# 읽기
+# ============================================
 
-# ==================================================
-# 서울 지역만 필터링
-# ==================================================
-df = df[df["지역"].isin(SEOUL_DISTRICTS)].copy()
+df = pd.read_csv(
+    file_path,
+    encoding="cp949"
+)
 
-# ==================================================
-# 컬럼명 변경
-# ==================================================
+# ============================================
+# 컬럼명
+# ============================================
+
 df = df.rename(columns={
     "진료개시년도": "year",
-    "지역": "sigungu",
+    "지역": "district",
     "환자수": "heat_patients"
 })
 
-# ==================================================
-# 숫자형 변환
-# * 값은 NaN 처리
-# ==================================================
-df["heat_patients"] = pd.to_numeric(
-    df["heat_patients"],
+districts = sorted(df["district"].unique())
+
+for d in districts:
+    print(d)
+
+# ============================================
+# 2023~2025
+# ============================================
+
+df["year"] = pd.to_numeric(
+    df["year"],
     errors="coerce"
 )
 
-# ==================================================
-# 서울 구별 누적 환자수
-# ==================================================
-district_summary = (
-    df.groupby("sigungu", as_index=False)["heat_patients"]
-      .sum()
-      .sort_values("heat_patients", ascending=False)
+df = df[
+    df["year"].between(2023, 2025)
+]
+
+# ============================================
+# 구 이름 정리
+# ============================================
+
+df = clean_district_name(
+    df,
+    "district"
 )
 
-# ==================================================
-# 서울 연도별 환자수
-# ==================================================
-year_summary = (
-    df.groupby("year", as_index=False)["heat_patients"]
-      .sum()
-      .sort_values("year")
+# 서울 25개구만 남김
+df = filter_seoul(
+    df,
+    "district"
 )
 
-# ==================================================
+# ============================================
+# 구별 환자수
+# ============================================
+
+result = (
+    df.groupby("district")[
+        "heat_patients"
+    ]
+    .sum()
+    .reset_index()
+)
+
+# ============================================
 # 저장
-# ==================================================
-df.to_csv(
-    PROCESSED_DIR / "seoul_heat_patients_clean.csv",
-    index=False,
-    encoding="utf-8-sig"
+# ============================================
+
+save_csv(
+    result,
+    PROCESSED_DIR /
+    "heat_patients.csv"
 )
 
-district_summary.to_csv(
-    PROCESSED_DIR / "seoul_heat_patients_by_district.csv",
-    index=False,
-    encoding="utf-8-sig"
-)
-
-year_summary.to_csv(
-    PROCESSED_DIR / "seoul_heat_patients_by_year.csv",
-    index=False,
-    encoding="utf-8-sig"
-)
-
-# ==================================================
-# 결과 확인
-# ==================================================
-print("서울 자치구 수:", df["sigungu"].nunique())
-print("데이터 건수:", len(df))
-
-print("\n상위 10개 자치구")
-print(district_summary.head(10))
-
-print("\n저장 완료")
-print(PROCESSED_DIR)
+print(result.head())
