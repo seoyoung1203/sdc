@@ -12,8 +12,7 @@ MASTER_DIR = BASE_DIR / "data" / "master"
 MASTER_DIR.mkdir(parents=True, exist_ok=True)
 
 print("==========================================================")
-print("🚀 [인코딩 및 권한 방어] HVI 계산 및 온열질환자 통합 파이프라인")
-print("==========================================================")
+
 
 def normalize_to_01_1(series, invert=False):
     min_val = series.min()
@@ -72,7 +71,7 @@ m_df["Heat_Risk_Score"] = HAZARD_CONSTANT * m_df["HVI_Score"]
 m_df["폭염_취약순위"] = m_df["HVI_Score"].rank(ascending=False, method="min").astype(int)
 
 # =================================================================
-# 4. [수정됨] 한글 인코딩(cp949)을 적용하여 온열질환자 데이터 로드 후 결합
+# 4. 온열질환자 데이터 로드 후 결합
 # =================================================================
 print("[단계 3] data/raw/outcome/ 경로에서 온열질환자 데이터 매핑 중...")
 try:
@@ -103,9 +102,9 @@ try:
     
     # 최종 결합
     m_df = pd.merge(m_df, df_outcome_clean, on="district", how="left")
-    print("-> 🔗 온열질환자(heat_patients) 실측 컬럼 결합에 성공했습니다!")
+    print("-> 온열질환자(heat_patients) 실측 컬럼 결합에 성공했습니다")
 except Exception as e:
-    print(f"-> ❌ 환자 데이터 결합 실패: {e}")
+    print(f"-> 환자 데이터 결합 실패: {e}")
 
 # =================================================================
 # 5. data/master/ 폴더에 최종 파일 저장
@@ -115,10 +114,10 @@ FINAL_OUTPUT = MASTER_DIR / "seoul_heat_vulnerability_master.csv"
 
 try:
     m_df.to_csv(FINAL_OUTPUT, index=False, encoding="utf-8-sig")
-    print(f"\n✨ [완료] 통합 마스터 파일이 정상 생성되었습니다.")
-    print(f"📂 저장된 파일 경로: {FINAL_OUTPUT}\n")
+    print(f"\n [완료] 통합 마스터 파일이 정상 생성되었습니다.")
+    print(f" 저장된 파일 경로: {FINAL_OUTPUT}\n")
     print(m_df[["district", "HVI_Score", "Heat_Risk_Score", "heat_patients", "폭염_취약순위"]].to_string(index=False))
 except PermissionError:
-    print("\n❌ [저장 실패] 최종 마스터 엑셀 파일이 여전히 열려 있습니다!")
+    print("\n [저장 실패] 최종 마스터 엑셀 파일이 여전히 열려 있습니다!")
     print("열려 있는 엑셀(Excel) 프로그램을 완전히 종료한 후 다시 스크립트를 실행해 주세요.")
 print("==========================================================")

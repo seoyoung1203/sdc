@@ -3,7 +3,7 @@ import pandas as pd
 
 
 # -----------------------------------------------------------------
-# [핵심 기능] 0.1 ~ 1 범위 변환 (Min-Max Rescaling) 함수
+# 0.1 ~ 1 범위 변환 (Min-Max Rescaling) 함수
 # -----------------------------------------------------------------
 def normalize_to_01_1(series, invert=False):
     """
@@ -25,7 +25,7 @@ def normalize_to_01_1(series, invert=False):
     return (norm * 0.9) + 0.1
 
 
-# --- 경로 정의 (프로젝트 루트 실행 기준) ---
+# --- 경로 ---
 BASE_DIR = Path(__file__).resolve().parent
 PROCESSED_DIR = BASE_DIR / "data" / "processed"
 
@@ -54,7 +54,7 @@ except Exception as e:
 
 
 # =================================================================
-# 2. 타 도메인 데이터 통합 (Merge)
+# 2. Merge
 # =================================================================
 print("\n[프로세스 2] 사회·환경·시설 데이터셋 병합 중...")
 
@@ -117,7 +117,7 @@ m_df = m_df.sort_values(by="폭염_취약순위")
 
 
 # =================================================================
-# 5. GIS 매핑 연동용 최종 마스터 CSV 저장
+# 5. GIS 매핑 연동용 최종 CSV 저장
 # =================================================================
 try:
     df_outcome = pd.read_csv(PROCESSED_DIR / "outcome" / "seoul_outcome.csv")
@@ -129,7 +129,7 @@ except Exception:
 OUTPUT_PATH = PROCESSED_DIR / "seoul_heat_vulnerability_master.csv"
 m_df.to_csv(OUTPUT_PATH, index=False, encoding="utf-8-sig")
 
-print(f"\n[성공] 최종 마스터 파일이 정상적으로 생성되었습니다: {OUTPUT_PATH}")
+print(f"\n[성공] : {OUTPUT_PATH}")
 print("-" * 80)
 print(m_df[["district", "Vulnerability_Score", "Exposure_Score", "Adaptive_Score", "HVI_Score", "Heat_Risk_Score", "폭염_취약순위"]].to_string(index=False))
 print("-" * 80)

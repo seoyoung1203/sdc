@@ -10,9 +10,9 @@ PROCESSED_DIR = BASE_DIR / "data" / "processed" / "env"
 
 # 둘 다 엑셀 파일명으로 깔끔하게 매핑
 impervious_file = RAW_DIR / "impervious_surface.xlsx"
-green_file = RAW_DIR / "green_space.xlsx"  # <- 엑셀로 저장한 파일명
+green_file = RAW_DIR / "green_space.xlsx"  
 
-# 1. 엑셀 전용 로더로 데이터 수집 (인코딩 에러 원천 차단)
+# 1. 데이터 수집 
 df_impervious = load_impervious_surface(impervious_file)
 df_green = load_green_space(green_file)
 
@@ -47,5 +47,5 @@ df_exposure_save.to_csv(
     encoding="utf-8-sig"
 )
 
-print("--- [성공] 엑셀 기반 파일 전처리 및 순수 데이터 저장 완료 ---")
+print("--- [성공]  ---")
 print(df_exposure_save.head(5))

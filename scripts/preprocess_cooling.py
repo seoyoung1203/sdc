@@ -1,10 +1,9 @@
 from pathlib import Path
 import pandas as pd
 
-# 만약 코드를 분리하셨다면 아래 공통 함수 import 주석을 해제하세요.
 from utils.cooling import *
 
-# --- 경로 정의 ---
+# --- 경로 ---
 BASE_DIR = Path(__file__).resolve().parent.parent
 RAW_DIR = BASE_DIR / "data" / "raw" / "cooling"
 PROCESSED_DIR = BASE_DIR / "data" / "processed" / "cooling"
