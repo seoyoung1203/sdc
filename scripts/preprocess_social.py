@@ -1,7 +1,6 @@
 from pathlib import Path
 import pandas as pd
 
-# 앞서 만든 공통 함수 가져오기 (환경에 맞게 import 경로 조절)
 from utils.social import *
 
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -97,6 +96,8 @@ final_df = pd.merge(
 final_df["elderly_recipient_ratio"] = (
     final_df["elderly_recipients"] / final_df["elderly_pop"] * 100
 ).round(2)
+
+final_df = final_df.sort_values("elderly_pop", ascending=False).drop_duplicates(subset=["district", "year"])
 
 # 결과 저장
 save_csv(final_df, PROCESSED_DIR / "seoul_welfare_status.csv")
