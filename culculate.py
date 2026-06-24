@@ -120,7 +120,7 @@ m_df = m_df.sort_values(by="폭염_취약순위").reset_index(drop=True)
 
 
 # =================================================================
-# 5. [수정 완료] 마스터 통합 파일 저장 및 실측 데이터 정제 레이어
+# 5. [최종 보완] 중구 기호(*) 및 결측치 완벽 차단 레이어
 # =================================================================
 print("\n[프로세스 5] 실측 온열질환자 데이터(seoul_outcome.csv) 안전 정제 및 결합 시작...")
 
@@ -128,36 +128,38 @@ outcome_file_path = PROCESSED_DIR / "outcome" / "seoul_outcome.csv"
 
 if not outcome_file_path.exists():
     print(f"⚠️ [경고] 실측 파일이 해당 경로에 존재하지 않습니다: {outcome_file_path}")
-    print("-> 이로 인해 온열질환자 수가 임시값인 0명으로 대체되었습니다.")
     m_df["heat_patients"] = 0
 else:
     try:
         df_outcome = pd.read_csv(outcome_file_path)
         df_outcome["district"] = df_outcome["district"].astype(str).str.strip()
         
-        # [핵심 수정] 문자열, 공백, 쉼표(,) 등 숫자가 아닌 노이즈 요소를 안전하게 제거 및 변환
         if "heat_patients" in df_outcome.columns:
-            # 쉼표 제거 및 앞뒤 공백 정제
+            # 1단계: 문자열로 강제 변환 후 앞뒤 공백 및 쉼표 정제
             df_outcome["heat_patients"] = df_outcome["heat_patients"].astype(str).str.replace(",", "").str.strip()
-            # 숫자로 바꿀 수 없는 문자(-, ., 빈칸 등)는 전부 NaN(결측치)으로 강제 변환 후 0으로 채우기
-            df_outcome["heat_patients"] = pd.to_numeric(df_outcome["heat_patients"], errors="coerce").fillna(0)
+            
+            # 2단계: 중구의 '*'나 미기재 항목을 파이썬이 인식 가능한 NaN으로 강제 변환
+            df_outcome["heat_patients"] = pd.to_numeric(df_outcome["heat_patients"], errors="coerce")
+            
+            # 3단계: [중요] 변환된 NaN(결측치)을 타입 변환 전에 '먼저' 0명으로 확실하게 채우기
+            df_outcome["heat_patients"] = df_outcome["heat_patients"].fillna(0).astype(int)
         else:
             raise KeyError("seoul_outcome.csv 파일 내에 'heat_patients' 컬럼이 존재하지 않습니다.")
 
-        # 안전하게 정제된 데이터 기반 우측 결합(Left Join) 수행
+        # 정제가 끝난 깨끗한 데이터셋(int형)을 마스터 프레임과 병합
         m_df = pd.merge(m_df, df_outcome, on="district", how="left")
         
-        # 결합 후 최종 결측치 검사 및 데이터 타입 정수형(int) 변환
+        # 만약 마스터 프레임에만 존재하고 실측 파일엔 없는 구가 있다면 최종 방어 처리
         m_df["heat_patients"] = m_df["heat_patients"].fillna(0).astype(int)
         
-        print("✅ [성공] 온열질환자 데이터가 노이즈 없이 안전하게 마스터 프레임에 로드되었습니다!")
-        print(f"-> 실측 환자수 입력 상위 3개구 샘플:\n{m_df.sort_values(by='heat_patients', ascending=False)[['district', 'heat_patients']].head(3).to_string(index=False)}")
+        print("✅ [성공] 중구의 별표(*)를 포함한 모든 결측치가 안전하게 0명으로 정제되어 병합되었습니다!")
+        print(f"-> 전체 자치구 온열질환자 수 검증:\n{m_df[['district', 'heat_patients']].to_string(index=False)}")
         
     except Exception as e:
         print(f"❌ [에러 발생] 데이터 정제 및 파싱 중 오류 발생: {e}")
         m_df["heat_patients"] = 0
 
-OUTPUT_PATH = MASTER_DIR / "seoul_heat_vulnerability_master.csv"
+OUTPUT_PATH = MASTER_DIR / "F_seoul_heat_vulnerability_master.csv"
 m_df.to_csv(OUTPUT_PATH, index=False, encoding="utf-8-sig")
 print(f"[2단계 마스터 통합 완료] -> 저장경로: {OUTPUT_PATH}")
 
